@@ -1,0 +1,52 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+CREATE DATABASE IF NOT EXISTS `phones` /*!40100 DEFAULT CHARACTER SET utf8 */;
+USE `phones`;
+
+DROP TABLE IF EXISTS `contacts`;
+CREATE TABLE IF NOT EXISTS `contacts` (
+  `id` char(11) NOT NULL,
+  `ddd` int(2) unsigned DEFAULT NULL,
+  `prefix` int(5) unsigned DEFAULT NULL,
+  `sufix` int(4) unsigned DEFAULT NULL,
+  `resident` varchar(50) DEFAULT NULL,
+  `publisher` varchar(50) DEFAULT NULL,
+  `dayOfWeek` tinyint(1) unsigned DEFAULT NULL,
+  `period` tinyint(1) unsigned DEFAULT NULL,
+  `updatedAt` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `notes`;
+CREATE TABLE IF NOT EXISTS `notes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `contactId` char(11) NOT NULL,
+  `dateContact` datetime DEFAULT current_timestamp(),
+  `obs` varchar(1000) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_CONTACT` (`contactId`),
+  CONSTRAINT `FK_CONTACT` FOREIGN KEY (`contactId`) REFERENCES `contacts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  `email` varchar(150) DEFAULT NULL,
+  `pass` varchar(100) DEFAULT NULL,
+  `admin` tinyint(1) DEFAULT 0 COMMENT 'É Admin?',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

@@ -14,4 +14,8 @@ return [
     'db_host' => 'localhost',
     'db_user' => 'phones',
     'db_pass' => 'Ph0n3s!20222',
+
+    // Dados para phones
+    'country_code' => '+55',
+    'old_contact' => '-3 months',
 ];

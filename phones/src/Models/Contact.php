@@ -4,6 +4,10 @@ namespace App\Models;
 
 class Contact
 {
+    const PERIOD_MORNING = 1;
+    const PERIOD_AFTERNOON = 2;
+    const PERIOD_NIGHT = 3;
+
     /** O ID é o numero do telefone completo - apenas números */
     private $id;
     private $ddd;
@@ -13,6 +17,8 @@ class Contact
     private $publisher;
     /** Ligar em: 1 para domingo, 7 para sábado */
     private $dayOfWeek;
+    /** Ligar em: 1 para manhã, 2 para tarde e 3 para noite */
+    private $period;
     private $updatedAt;
 
     public function getId()
@@ -107,6 +113,30 @@ class Contact
         }
 
         $this->dayOfWeek = $dayOfWeek;
+
+        return $this;
+    }
+    
+    public function getPeriod($isFormated = false)
+    {
+        if (empty($this->period)) {
+            return null;
+        }
+        $periodText = ['Manhã', 'Tarde', 'Noite'];
+        return $isFormated ? $periodText[$this->period - 1] : $this->period;
+    }
+
+    public function setPeriod(int $period = self::PERIOD_MORNING)
+    {
+        if ($period < 1) {
+            $period = 1;
+        }
+
+        if ($period > 3) {
+            $period = 3;
+        }
+
+        $this->period = $period;
 
         return $this;
     }

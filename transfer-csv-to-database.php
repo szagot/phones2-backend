@@ -1,4 +1,10 @@
 <?php
+/**
+ * Para transferir os arquivos, copie-os para phones/tmp/
+ * Deve haver 2 para que a transferência funcione:
+ *      - phones/tmp/preachings.csv
+ *      - phones/tmp/revisits.csv
+ */
 
 use App\Config\Log;
 use Sz\Conn\Connection;

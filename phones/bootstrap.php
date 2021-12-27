@@ -29,10 +29,13 @@ define('DB_HOST', $config->getDBHost());
 define('DB_USER', $config->getDBUser());
 define('DB_PASS', $config->getDBPass());
 
+// Pega o prefixo internacional
+define('INT_PREFIX', $config->getCountryCode());
+define('OLD_CONTACT', $config->getOldContact());
+
 // CSVs
 define('CSV_PREACHING', 'preachings.csv');
 define('CSV_REVISITS', 'revisits.csv');
-
 
 // Padrões
 define('REGEX_PASS', '/^[^\s\t]{6,}$/');

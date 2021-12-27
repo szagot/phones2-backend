@@ -62,4 +62,16 @@ class Config
     {
         return $this->config['db_pass'] ?? '';
     }
+
+
+
+    public function getCountryCode()
+    {
+        return $this->config['country_code'] ?? '+55';
+    }
+
+    public function getOldContact()
+    {
+        return $this->config['old_contact'] ?? '-3 months';
+    }
 }

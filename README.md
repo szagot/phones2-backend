@@ -228,3 +228,76 @@ Campo | Tipo | Descrição
 Tudo estando correto, é retornado um `204 No Content`
 
 ---
+
+## Serviços de Contato
+
+`GET /phones/contacts`
+
+Pega todos os contatos. Os campos são simplificados para listagem.
+
+Em caso de sucesso, o retorno será o seguinte:
+
+```JSON
+[
+    {
+        "phone": 11988889999,
+        "formatted": "(11) 98888-9999",
+        "international": "+5511988889999",
+        "updatedAt": "2021-12-08 14:30:41",
+        "brazilDate": "08/12/21 14:30",
+        "hasRevisit": true
+    }
+]
+```
+
+---
+
+`GET /phones/contacts/call`
+
+Retorna apenas os números elegíveis para ligação.
+
+Em caso de sucesso, o retorno será o seguinte:
+
+```JSON
+[
+    {
+        "phone": 11988889999,
+        "formatted": "(11) 98888-9999",
+        "international": "+5511988889999",
+        "updatedAt": "2021-07-08 14:30:41",
+        "brazilDate": "08/07/21 14:30",
+        "hasRevisit": true
+    }
+]
+```
+
+---
+
+`GET /phones/contacts/{id}`
+
+Retorna os detalhes de um número de telefone.
+
+O {id} é o número do telefone com ddd (apenas núemeros). Exemplo: `{uri}/phones/contacts/11988889999`.
+
+Em caso de sucesso o retorno será:
+
+```JSON
+{
+    "id": 19988104174,
+    "ddd": 19,
+    "prefix": 98810,
+    "sufix": 4174,
+    "formatted": "(19) 98810-4174",
+    "international": "+5519988104174",
+    "resident": "Filipe",
+    "publisher": "Filipe",
+    "dayOfWeek": 1,
+    "dayOfWeekText": "Domingo",
+    "period": 1,
+    "periodText": "Manhã",
+    "updatedAt": "2021-12-27 17:50:56",
+    "brazilDate": "27/12/2021 17:50"
+}
+```
+
+Obs: `dayOfWeek` refere-se ao dia da semana marcado para retorno, e `period` ao período do dia para esse retorno (manhã, tarde ou noite).
