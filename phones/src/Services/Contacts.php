@@ -41,15 +41,7 @@ class Contacts implements iServices
                 break;
 
 
-                // --------------------
-                // TODO a partir daqui
-                // --------------------
-
-
             case Output::METHOD_DELETE:
-
-                Output::success([], $uri->getMethod());
-                // TODO
 
                 if (empty($uri->getFirstUrlParam()) || !is_numeric($uri->getFirstUrlParam())) {
                     Output::error('Requisição inválida', $uri->getMethod());
@@ -64,6 +56,11 @@ class Contacts implements iServices
                 break;
 
             case Output::METHOD_POST:
+
+
+                // --------------------
+                // TODO a partir daqui
+                // --------------------
 
                 Output::success([], $uri->getMethod());
                 // TODO
@@ -150,30 +147,19 @@ class Contacts implements iServices
         return empty($contact) ? [] : $this->amendContact($contact);
     }
 
-    /**
-     * Utilizada no serviço /myuser
-     */
-    public function getByMail($email)
-    {
-        $user = Query::exec('SELECT * FROM users WHERE email = :email', [
-            'email' => $email,
-        ], AdminUser::class)[0] ?? null;
-
-        //return empty($user) ? [] : $this->amendUser($user);
-    }
 
     private function delete($id)
     {
-        $user = Query::exec('SELECT * FROM users WHERE id = :id', [
+        $contact = Query::exec('SELECT * FROM contacts WHERE id = :id', [
             'id' => $id,
-        ], AdminUser::class)[0] ?? null;
+        ], Contact::class)[0] ?? null;
 
-        if (!$user) {
-            $this->error = 'Não existe usuário com o ID ' . $id;
+        if (!$contact) {
+            $this->error = 'Não existe contato com o ID ' . $id;
             return false;
         }
 
-        $return = Query::exec('DELETE FROM users WHERE id = :id', [
+        $return = Query::exec('DELETE FROM contacts WHERE id = :id', [
             'id' => $id,
         ]);
 

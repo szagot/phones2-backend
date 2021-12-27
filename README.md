@@ -301,3 +301,11 @@ Em caso de sucesso o retorno será:
 ```
 
 Obs: `dayOfWeek` refere-se ao dia da semana marcado para retorno, e `period` ao período do dia para esse retorno (manhã, tarde ou noite).
+
+---
+
+`DELETE /phones/contacts/{id}`
+
+Apaga os dados do contato informado.
+
+Se o memo tiver notas de revisitas, estas também serão apagadas.
