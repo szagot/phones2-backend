@@ -29,6 +29,7 @@ class Contact
     public function generateId()
     {
         $this->id = $this->ddd . $this->prefix . $this->sufix;
+        $this->updatedAt = date('Y-m-d H:i:s');
 
         return $this;
     }

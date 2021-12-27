@@ -283,14 +283,14 @@ Em caso de sucesso o retorno será:
 
 ```JSON
 {
-    "id": 19988104174,
-    "ddd": 19,
-    "prefix": 98810,
-    "sufix": 4174,
-    "formatted": "(19) 98810-4174",
-    "international": "+5519988104174",
-    "resident": "Filipe",
-    "publisher": "Filipe",
+    "id": 11988889999,
+    "ddd": 11,
+    "prefix": 98888,
+    "sufix": 9999,
+    "formatted": "(11) 98888-9999",
+    "international": "+5511988889999",
+    "resident": "Nome do Morador",
+    "publisher": "Nome do Publicador",
     "dayOfWeek": 1,
     "dayOfWeekText": "Domingo",
     "period": 1,
@@ -309,3 +309,34 @@ Obs: `dayOfWeek` refere-se ao dia da semana marcado para retorno, e `period` ao 
 Apaga os dados do contato informado.
 
 Se o memo tiver notas de revisitas, estas também serão apagadas.
+
+---
+
+`POST /phones/contacts`
+
+Insere um número de telefone ou uma sequencia de números
+
+Campo | Tipo | Descrição
+------- | ------- | -------
+`ddd` | `int` | DDD
+`prefix` | `int` | Prefixo do número
+`sufixStart` | `int` | Sufixo do número inicial
+`sufixEnd` | `int` | (Opcional) Sufixo do número final
+
+Se for cadastrar apenas um número, o campo `sufixEnd` pode ser omitido, 
+ou declarado com o mesmo valor de `sufixStart`.
+
+Se tudo ocorrer bem, será retornada uma lista dos números inseridos, como segue:
+
+```JSON
+[
+    {
+        "phone": 11988889999,
+        "formatted": "(11) 98888-9999",
+        "international": "+5511988889999",
+        "updatedAt": "2021-12-27 19:38:40",
+        "brazilDate": "27/12/21 19:38",
+        "hasRevisit": false
+    }
+]
+```

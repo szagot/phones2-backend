@@ -57,30 +57,25 @@ class Contacts implements iServices
 
             case Output::METHOD_POST:
 
+                $ddd = $uri->getParam('ddd', FILTER_VALIDATE_INT);
+                $prefix = $uri->getParam('prefix', FILTER_VALIDATE_INT);
+                $sufixStart = $uri->getParam('sufixStart', FILTER_VALIDATE_INT);
+                $sufixEnd = $uri->getParam('sufixEnd', FILTER_VALIDATE_INT);
 
-                // --------------------
-                // TODO a partir daqui
-                // --------------------
-
-                Output::success([], $uri->getMethod());
-                // TODO
-
-                $email = trim($uri->getParam('email'));
-                $name = trim($uri->getParam('name'));
-                $password = trim($uri->getParam('password'));
-                $confirmPassword = trim($uri->getParam('confirmPassword'));
-                $isAdmin = $uri->getParam('isAdmin', FILTER_VALIDATE_BOOLEAN);
-
-                $user = $this->create($name, $email, $password, $confirmPassword, $isAdmin);
-                if (!$user) {
+                $contacts = $this->create($ddd, $prefix, $sufixStart, $sufixEnd);
+                if (!$contacts) {
                     Output::error($this->error, $uri->getMethod());
                 }
 
-                //Output::success($this->amendUser($user), $uri->getMethod());
+                Output::success(array_map(array($this, 'amendSimpleContact'), $contacts), $uri->getMethod());
                 break;
 
             case Output::METHOD_PATCH:
 
+
+                // --------------------
+                // TODO a partir daqui
+                // --------------------
                 Output::success([], $uri->getMethod());
                 // TODO
 
@@ -171,63 +166,73 @@ class Contacts implements iServices
         return true;
     }
 
-    private function create($name, $email, $password, $confirmPassword, $isAdmin)
+    private function create(int $ddd, int $prefix, int $sufixStart, int $sufixEnd = null)
     {
-        if (!preg_match(REGEX_MAIL, $email)) {
-            $this->error = 'Informe um email válido';
+        if (strlen($ddd) != 2) {
+            $this->error = 'Informe um DDD válido';
             return false;
         }
 
-        if (strlen($name) < 3 || empty($password)) {
-            $this->error = 'Todos os campos são obrigatórios, sendo que nome deve possuir pelo menos 4 caracteres';
+        if (strlen($prefix) < 4 || strlen($prefix) > 5) {
+            $this->error = 'Informe um prefixo válido';
             return false;
         }
 
-        if ($password != $confirmPassword) {
-            $this->error = 'A confirmação de senha é diferente da senha informada';
+        if (strlen($sufixStart) != 4) {
+            $this->error = 'Informe um sufixo válido';
             return false;
         }
 
-        if (!preg_match(REGEX_PASS, $password)) {
-            $this->error = 'A senha precisa ter pelo menos 6 caracteres, e não pode conter espaços.';
+        if (empty($sufixEnd)) {
+            $sufixEnd = $sufixStart;
+        } elseif (strlen($sufixEnd) != 4 || $sufixEnd < $sufixStart) {
+            $this->error = 'Informe um sufixo de faixa válido. Precisa ser maior ou igual ao sufixo de início da faixa.';
             return false;
         }
 
-        // Verifica se o usuario ja existe
-        $user = Query::exec('SELECT * FROM users WHERE email = :email', [
-            'email' => $email,
-        ], AdminUser::class)[0] ?? null;
+        $contacts = [];
+        $index = $sufixStart;
 
-        if ($user) {
-            $this->error = 'Já existe um usuário com o email ' . $email;
-            return false;
-        }
+        do {
+            $id = $ddd . $prefix . $index;
 
-        $user = new AdminUser();
-        $user
-            ->setName($name)
-            ->setEmail($email)
-            ->setPass($password)
-            ->setAdmin($isAdmin);
+            // Verifica se o contato ja existe
+            $contact = Query::exec('SELECT * FROM contacts WHERE id = :id', [
+                'id' => $id,
+            ], Contact::class)[0] ?? null;
 
-        $response = Query::exec(
-            'INSERT INTO users (name, email, pass, admin) VALUES (:name, :email, :pass, :admin)',
-            [
-                'name'  => $user->getName(),
-                'email' => $user->getEmail(),
-                'pass'  => $user->getEncryptedPass(),
-                'admin' => $user->isAdmin(),
-            ]
-        );
+            if ($contact) {
+                $this->error = 'O contato já existe. Tel: ' . $id;
+                continue;
+            }
 
-        if (!$response) {
-            $this->error = Query::getLog(true)['errorMsg'];
-            return false;
-        }
+            $contact = new Contact();
+            $contact
+                ->setDDD($ddd)
+                ->setPrefix($prefix)
+                ->setSufix($index)
+                ->generateId();
 
-        $user->setId(Query::getLog(true)['lastId']);
+            $response = Query::exec(
+                'INSERT INTO contacts (id, ddd, prefix, sufix) VALUES (:id, :ddd, :prefix, :sufix)',
+                [
+                    'id'  => $contact->getId(),
+                    'ddd' => $contact->getDDD(),
+                    'prefix'  => $contact->getPrefix(),
+                    'sufix' => $contact->getSufix(),
+                ]
+            );
 
-        return $user;
+            if (!$response) {
+                $this->error = Query::getLog(true)['errorMsg'];
+                return false;
+            }
+
+            $contacts[] = $contact;
+            
+        } while ($sufixEnd > $index++);
+
+        return $contacts;
     }
 
     /**
