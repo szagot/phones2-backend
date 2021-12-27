@@ -4,14 +4,14 @@ return [
     'debug' => true,
 
     // Raiz do sistema
-    'root' => 'app/',
+    'root' => 'phones/',
 
     // Duração do token
     'tokenExpires' => '+6 hours',
 
     // Dados do BD
-    'db_name' => 'nome-banco',
+    'db_name' => 'phones',
     'db_host' => 'localhost',
-    'db_user' => 'user',
-    'db_pass' => 'senha',
+    'db_user' => 'phones',
+    'db_pass' => 'Ph0n3s!20222',
 ];

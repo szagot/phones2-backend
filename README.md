@@ -3,7 +3,7 @@
 Serviços de base para novos Apps.
 
 Aponte o apache para essa pasta.
-Dessa forma, a base da chamada será `{uri}/app/{servicos}`
+Dessa forma, a base da chamada será `{uri}/phones/{servicos}`
 
 Você pode configurar isso em `configure.php` no campo `root`. Lembre de renomear a pasta também.
 
@@ -26,7 +26,7 @@ Em caso de falha, será retornado um http code apropriado ao erro
 
 ## Serviço de login
 
-`POST /emailservice/login`
+`POST /phones/login`
 
 Efetua o login no sistema. São esperados os seguintes campos:
 
@@ -59,7 +59,7 @@ E o body terá as seguintes informações:
 
 ## Serviços de usuário
 
-`GET /emailservice/user`
+`GET /phones/user`
 
 Pega todos os usuários do sistema
 
@@ -76,7 +76,7 @@ Pega todos os usuários do sistema
 
 ---
 
-`GET /emailservice/user/{id}`
+`GET /phones/user/{id}`
 
 Pega os dados do usuário de id informado
 
@@ -91,7 +91,7 @@ Pega os dados do usuário de id informado
 
 ---
 
-`GET /emailservice/myuser`
+`GET /phones/myuser`
 
 Pega os dados do usuário logado
 
@@ -106,7 +106,7 @@ Pega os dados do usuário logado
 
 ---
 
-`GET /emailservice/roles/me`
+`GET /phones/roles/me`
 
 Pega as regras de permissão do usuário logado.
 
@@ -164,14 +164,14 @@ Um usuário com acesso adinistrativo, terá o seguinte retorno:
 
 ---
 
-`DELETE /emailservice/user/{id}`
+`DELETE /phones/user/{id}`
 
 Apaga os dados do usuário informado.
 (Não permite apagar o usuário se este for o mesmo que logou)
 
 ---
 
-`POST /emailservice/user`
+`POST /phones/user`
 
 Cadastra um usuário. São esperados os seguintes campos
 
@@ -196,7 +196,7 @@ Em caso de sucesso, retorno o usuário cadastrado com seu id. A senha, encriptad
 
 ---
 
-`PATCH /emailservice/user/{id}`
+`PATCH /phones/user/{id}`
 
 Atualiza os dados de um usuário. Todos os campos são opcionais, porém ao menos um deve ser informado.
 (Não é possível alterar o email):
@@ -214,7 +214,7 @@ Tudo estando correto, é retornado um `204 No Content`
 
 ---
 
-`PATCH /emailservice/myuser`
+`PATCH /phones/myuser`
 
 Atualiza os dados do usuário logado. Todos os campos são opcionais, porém ao menos um deve ser informado.
 (Não é possível alterar o email e o tipo de usuário)
