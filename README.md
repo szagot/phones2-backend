@@ -1,12 +1,5 @@
 # App para controle de contatos de campo / revisitas
 
-Serviços de base para novos Apps.
-
-Aponte o apache para essa pasta.
-Dessa forma, a base da chamada será `{uri}/phones/{servicos}`
-
-Você pode configurar isso em `configure.php` no campo `root`. Lembre de renomear a pasta também.
-
 ---
 
 ## Mensagens de erro
