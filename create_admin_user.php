@@ -8,7 +8,7 @@ use App\Auth\Login;
 use Sz\Conn\Connection;
 use Sz\Conn\Query;
 
-require_once 'app/bootstrap.php';
+require_once 'phones/bootstrap.php';
 
 Query::setConn(new Connection(
     DB_NAME,

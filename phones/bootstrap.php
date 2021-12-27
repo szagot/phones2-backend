@@ -29,6 +29,11 @@ define('DB_HOST', $config->getDBHost());
 define('DB_USER', $config->getDBUser());
 define('DB_PASS', $config->getDBPass());
 
+// CSVs
+define('CSV_PREACHING', 'preachings.csv');
+define('CSV_REVISITS', 'revisits.csv');
+
+
 // Padrões
 define('REGEX_PASS', '/^[^\s\t]{6,}$/');
 define('REGEX_MAIL', '/^[^@\s]+@[^@\s.]+\.[^@\s]+$/i');
