@@ -72,26 +72,16 @@ class Contacts implements iServices
 
             case Output::METHOD_PATCH:
 
-
-                // --------------------
-                // TODO a partir daqui
-                // --------------------
-                Output::success([], $uri->getMethod());
-                // TODO
-
                 if (empty($uri->getFirstUrlParam()) || !is_numeric($uri->getFirstUrlParam())) {
                     Output::error('Requisição inválida', $uri->getMethod());
                 }
 
-                $name = trim($uri->getParam('name'));
-                $password = trim($uri->getParam('password'));
-                $confirmPassword = trim($uri->getParam('confirmPassword'));
+                $resident = trim($uri->getParam('resident'));
+                $publisher = trim($uri->getParam('publisher'));
+                $dayOfWeek = $uri->getParam('dayOfWeek', FILTER_VALIDATE_INT);
+                $period = $uri->getParam('period', FILTER_VALIDATE_INT);
 
-                $auth = $uri->getHeader('Authorization');
-                $loggedMail = JWT::getUid($auth);
-                $isAdmin = $uri->getParam('isAdmin', FILTER_VALIDATE_BOOLEAN);
-
-                $user = $this->update($loggedMail, $uri->getFirstUrlParam(), null, $name, $password, $confirmPassword, $isAdmin);
+                $user = $this->update($uri->getFirstUrlParam(), $resident, $publisher, $dayOfWeek, $period);
                 if (!$user) {
                     Output::error($this->error, $uri->getMethod());
                 }
@@ -238,60 +228,71 @@ class Contacts implements iServices
     /**
      * Utilizada também no serviço /myuser
      */
-    public function update($loggedMail, $id = null, $email = null, $name = null, $password = null, $confirmPassword = null, $isAdmin = null)
+    public function update(int $id, $resident = null, $publisher = null, int $dayOfWeek = null, int $period = null)
     {
-        if (empty($id) && empty($email)) {
-            $this->error = 'Nenhum identificador informado';
-            return false;
-        }
-
-        $seeker = empty($email) ? 'id' : 'email';
-
-        if (!empty($password)) {
-            if ($password != $confirmPassword) {
-                $this->error = 'A confirmação de senha é diferente da senha informada';
-                return false;
-            }
-
-            if (!preg_match(REGEX_PASS, $password)) {
-                $this->error = 'A senha precisa ter pelo menos 6 caracteres, e não pode conter espaços.';
+        if (!empty($resident)) {
+            if (strlen($resident) < 3) {
+                $this->error = 'Informe um nome válido para o Morador. Precisa ter mais que 2 letras.';
                 return false;
             }
         }
 
-        if (!empty($name) && strlen($name) < 3) {
-            $this->error = 'O campo nome deve possuir pelo menos 4 caracteres';
-            return false;
+        if (!empty($publisher)) {
+            if (strlen($publisher) < 3) {
+                $this->error = 'Informe um nome válido para o Publicador. Precisa ter mais que 2 letras.';
+                return false;
+            }
         }
 
-        /** @var AdminUser $user Verifica se o usuario existe */
-        $user = Query::exec("SELECT * FROM users WHERE {$seeker} = :seeker", [
-            'seeker' => $$seeker,
-        ], AdminUser::class)[0] ?? null;
+        if (!empty($dayOfWeek)) {
+            if ($dayOfWeek < 1 || $dayOfWeek > 7) {
+                $this->error = 'Informe um dia da semana válido. Deve ser um número de 1 a 7, sendo 1 = Domingo.';
+                return false;
+            }
+        }
 
-        if (!$user) {
-            $this->error = "Não existe um usuário com o {$seeker} {$$seeker}";
+        if (!empty($period)) {
+            if ($period < 1 || $period > 3) {
+                $this->error = 'Informe um período válido. Deve ser um número de 1 a 3, sendo 1 = Manhã, 2 = Tarde e 3 = Noite.';
+                return false;
+            }
+        }
+
+
+        /** @var Contact $user Verifica se o usuario existe */
+        $contact = Query::exec("SELECT * FROM contacts WHERE id = :id", [
+            'id' => $id,
+        ], Contact::class)[0] ?? null;
+
+        if (!$contact) {
+            $this->error = "Não existe um contato com o número {$id}";
             return false;
         }
 
         $fields = [
-            'seeker' => $$seeker,
+            'id' => $id,
         ];
+
         $textFields = '';
-        if (!empty($name) && $name != $user->getName()) {
-            $user->setName($name);
-            $fields['name'] = $user->getName();
-            $textFields .= (empty($textFields) ? '' : ', ') . 'name = :name';
+        if (!empty($resident) && $resident != $contact->getResident()) {
+            $contact->setResident($resident);
+            $fields['resident'] = $contact->getResident();
+            $textFields .= (empty($textFields) ? '' : ', ') . 'resident = :resident';
         }
-        if (!empty($password)) {
-            $user->setPass($password);
-            $fields['pass'] = $user->getEncryptedPass();
-            $textFields .= (empty($textFields) ? '' : ', ') . 'pass = :pass';
+        if (!empty($publisher) && $publisher != $contact->getPublisher()) {
+            $contact->setPublisher($publisher);
+            $fields['publisher'] = $contact->getPublisher();
+            $textFields .= (empty($textFields) ? '' : ', ') . 'publisher = :publisher';
         }
-        if (!is_null($isAdmin) && $isAdmin != $user->isAdmin() && $loggedMail != $user->getEmail()) {
-            $user->setAdmin($isAdmin);
-            $fields['admin'] = $user->isAdmin();
-            $textFields .= (empty($textFields) ? '' : ', ') . 'admin = :admin';
+        if (!empty($dayOfWeek) && $dayOfWeek != $contact->getDayOfWeek()) {
+            $contact->setDayOfWeek($dayOfWeek);
+            $fields['dayOfWeek'] = $contact->getDayOfWeek();
+            $textFields .= (empty($textFields) ? '' : ', ') . 'dayOfWeek = :dayOfWeek';
+        }
+        if (!empty($period) && $period != $contact->getPeriod()) {
+            $contact->setPeriod($period);
+            $fields['period'] = $contact->getPeriod();
+            $textFields .= (empty($textFields) ? '' : ', ') . 'period = :period';
         }
 
         // Se não foram necessária alterações
@@ -300,7 +301,7 @@ class Contacts implements iServices
         }
 
         $response = Query::exec(
-            "UPDATE users SET {$textFields} WHERE {$seeker} = :seeker",
+            "UPDATE contacts SET {$textFields} WHERE id = :id",
             $fields
         );
 
@@ -309,7 +310,7 @@ class Contacts implements iServices
             return false;
         }
 
-        return $user;
+        return $contact;
     }
 
     /**

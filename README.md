@@ -323,8 +323,7 @@ Campo | Tipo | Descrição
 `sufixStart` | `int` | Sufixo do número inicial
 `sufixEnd` | `int` | (Opcional) Sufixo do número final
 
-Se for cadastrar apenas um número, o campo `sufixEnd` pode ser omitido, 
-ou declarado com o mesmo valor de `sufixStart`.
+Se for cadastrar apenas um número, o campo `sufixEnd` pode ser omitido, ou declarado com o mesmo valor de `sufixStart`.
 
 Se tudo ocorrer bem, será retornada uma lista dos números inseridos, como segue:
 
@@ -340,3 +339,18 @@ Se tudo ocorrer bem, será retornada uma lista dos números inseridos, como segu
     }
 ]
 ```
+
+---
+
+`PATCH /phones/contacts/{id}`
+
+Atualiza os dados de um contato. Todos os campos são opcionais, porém ao menos um deve ser informado.
+
+Campo | Tipo | Descrição
+------- | ------- | -------
+`resident` | `string` | Nome do Morador
+`publisher` | `string` | Nome do Publicador
+`dayOfWeek` | `int` | Dia da semana, de `1` a `7`, sendo `1` = Domingo.
+`period` | `int` | Perídodo. `1` = Manhã, `2` = Tarde e `3` = Noite
+
+Tudo estando correto, é retornado um `204 No Content`

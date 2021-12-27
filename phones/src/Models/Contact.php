@@ -75,7 +75,7 @@ class Contact
         return $this->resident;
     }
 
-    public function setResident(int $resident)
+    public function setResident(string $resident)
     {
         $this->resident = $resident;
 
@@ -87,7 +87,7 @@ class Contact
         return $this->publisher;
     }
 
-    public function setPublisher(int $publisher)
+    public function setPublisher(string $publisher)
     {
         $this->publisher = $publisher;
 
