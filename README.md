@@ -47,7 +47,7 @@ E o body terá as seguintes informações:
 
 ```JSON
 {
-    "user": "usuario@datacoress.com",
+    "user": "usuario@servidor.com",
     "expiresIn": {
         "timestamp": 1632939971,
         "dateTime": "2021-09-29 18:26:11"
@@ -68,7 +68,7 @@ Pega todos os usuários do sistema
     {
         "id": "99",
         "name": "Nome do Usuário",
-        "email": "email@datacoress.com",
+        "email": "email@servidor.com",
         "isAdmin": false
     }
 ]
@@ -84,7 +84,7 @@ Pega os dados do usuário de id informado
 {
     "id": "99",
     "name": "Nome do Usuário",
-    "email": "email@datacoress.com",
+    "email": "email@servidor.com",
     "isAdmin": false
 }
 ```
@@ -99,7 +99,7 @@ Pega os dados do usuário logado
 {
     "id": "99",
     "name": "Nome do Usuário",
-    "email": "email@datacoress.com",
+    "email": "email@servidor.com",
     "isAdmin": false
 }
 ```
@@ -189,7 +189,7 @@ Em caso de sucesso, retorno o usuário cadastrado com seu id. A senha, encriptad
 {
     "id": "99",
     "name": "Nome do Usuário",
-    "email": "email@datacoress.com",
+    "email": "email@servidor.com",
     "isAdmin": false
 }
 ```
