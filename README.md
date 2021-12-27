@@ -1,4 +1,4 @@
-# Serviços de base para App
+# App para controle de contatos de campo / revisitas
 
 Serviços de base para novos Apps.
 
