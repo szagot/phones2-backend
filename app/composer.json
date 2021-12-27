@@ -1,0 +1,11 @@
+{
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "require": {
+        "szagot/conn": "dev-master",
+        "szagot/config": "dev-master"
+    }
+}
