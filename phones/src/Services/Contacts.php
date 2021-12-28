@@ -28,6 +28,9 @@ class Contacts implements iServices
                     } elseif ($uri->getFirstUrlParam() == 'call') {
                         // GET Contact Call
                         Output::success($this->getCall(), $uri->getMethod());
+                    } elseif ($uri->getFirstUrlParam() == 'revisits') {
+                        // GET Contact Revisits
+                        Output::success($this->getRevisits(), $uri->getMethod());
                     }
 
                     Output::error('Requisição inválida', $uri->getMethod());
@@ -117,6 +120,20 @@ class Contacts implements iServices
         );
 
         return empty($contacts) ? [] : array_map(array($this, 'amendSimpleContact'), $contacts);
+    }
+
+    /**
+     * Retorna apenas contatos com revisitas
+     */
+    private function getRevisits()
+    {
+        $contacts = Query::exec(
+            'SELECT id, ddd, prefix, sufix, updatedAt, resident, publisher FROM contacts WHERE COALESCE(resident, "") <> "" ORDER BY id',
+            [],
+            Contact::class
+        );
+
+        return empty($contacts) ? [] : array_map(array($this, 'amendRevisits'), $contacts);
     }
 
     private function get($id)
@@ -346,6 +363,25 @@ class Contacts implements iServices
             'updatedAt' => $contact->getUpdatedAt()->format('Y-m-d H:i:s'),
             'brazilDate' => $contact->getUpdatedAt()->format('d/m/y H:i'),
             'hasRevisit' => !empty($contact->getResident()),
+        ];
+    }
+
+    /**
+     * Faz a conversão de contato pro formato de drevisitas
+     *
+     * @param Contact $contact
+     * @return array
+     */
+    private function amendRevisits(Contact $contact)
+    {
+        return [
+            'phone' => (int) $contact->getId(),
+            'formatted' => "({$contact->getDDD()}) {$contact->getPrefix()}-{$contact->getSufix()}",
+            'international' => INT_PREFIX . $contact->getId(),
+            'resident' => $contact->getResident(),
+            'publisher' => $contact->getPublisher(),
+            'updatedAt' => $contact->getUpdatedAt()->format('Y-m-d H:i:s'),
+            'brazilDate' => $contact->getUpdatedAt()->format('d/m/y H:i'),
         ];
     }
 }

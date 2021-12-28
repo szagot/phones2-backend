@@ -6,7 +6,6 @@
 
 namespace App\Services;
 
-use App\Config\Log;
 use App\Config\Output;
 use App\Models\Contact;
 use App\Models\Note;

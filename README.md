@@ -268,6 +268,29 @@ Em caso de sucesso, o retorno será o seguinte:
 
 ---
 
+`GET /phones/contacts/revisits`
+
+Retorna apenas os números que possuem revisitas
+
+Em caso de sucesso, o retorno será o seguinte:
+
+```JSON
+[
+    {
+        "phone": 11988889999,
+        "formatted": "(11) 98888-9999",
+        "international": "+5511988889999",
+        "resident": "Nome do Morador",
+        "publisher": "Nome do Pulicador",
+        "updatedAt": "2021-07-08 14:30:41",
+        "brazilDate": "08/07/21 14:30",
+        "hasRevisit": true
+    }
+]
+```
+
+---
+
 `GET /phones/contacts/{id}`
 
 Retorna os detalhes de um número de telefone.
