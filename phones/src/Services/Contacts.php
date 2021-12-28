@@ -77,8 +77,8 @@ class Contacts implements iServices
                 $dayOfWeek = $uri->getParam('dayOfWeek', FILTER_VALIDATE_INT);
                 $period = $uri->getParam('period', FILTER_VALIDATE_INT);
 
-                $user = $this->update($uri->getFirstUrlParam(), $resident, $publisher, $dayOfWeek, $period);
-                if (!$user) {
+                $contact = $this->update($uri->getFirstUrlParam(), $resident, $publisher, $dayOfWeek, $period);
+                if (!$contact) {
                     Output::error($this->error, $uri->getMethod());
                 }
 
@@ -221,9 +221,6 @@ class Contacts implements iServices
         return $contacts;
     }
 
-    /**
-     * Utilizada também no serviço /myuser
-     */
     public function update(int $id, $resident = null, $publisher = null, int $dayOfWeek = null, int $period = null)
     {
         if (!empty($resident)) {
@@ -254,8 +251,7 @@ class Contacts implements iServices
             }
         }
 
-
-        /** @var Contact $user Verifica se o usuario existe */
+        /** @var Contact $contact Verifica se o contato existe */
         $contact = Query::exec("SELECT * FROM contacts WHERE id = :id", [
             'id' => $id,
         ], Contact::class)[0] ?? null;

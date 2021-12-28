@@ -379,13 +379,12 @@ Apaga uma nota específica. Neste caso o {id} é o da nota em questão.
 
 ---
 
-`POST /phones/notes`
+`POST /phones/notes/{contactId}`
 
-Insere uma observação para o contato
+Insere uma observação para o contato {contactId}
 
 Campo | Tipo | Descrição
 ------- | ------- | -------
-`contactId` | `int` | Número de telefone com ddd do contato
 `contactDate` | `string` | Data do contato (2099-12-31 23:59)
 `text` | `string` | Texto da observação
 
@@ -402,3 +401,14 @@ Se tudo ocorrer bem, será retornada a observação inserida:
 ```
 
 ---
+
+`PATCH /phones/notes/{id}`
+
+Atualiza os dados de uma observação de contato. Todos os campos são opcionais, porém ao menos um deve ser informado.
+
+Campo | Tipo | Descrição
+------- | ------- | -------
+`contactDate` | `string` | Data do contato (2099-12-31 23:59)
+`text` | `string` | Texto da observação
+
+Tudo estando correto, é retornado um `204 No Content`

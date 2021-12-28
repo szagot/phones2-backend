@@ -6,6 +6,7 @@
 
 namespace App\Services;
 
+use App\Config\Log;
 use App\Config\Output;
 use App\Models\Contact;
 use App\Models\Note;
@@ -44,12 +45,14 @@ class Notes implements iServices
                 break;
 
             case Output::METHOD_POST:
+                if (empty($uri->getFirstUrlParam()) || !is_numeric($uri->getFirstUrlParam())) {
+                    Output::error('Requisição inválida', $uri->getMethod());
+                }
 
-                $contactId = $uri->getParam('contactId', FILTER_VALIDATE_INT);
-                $date = $uri->getParam('contactDate');
-                $text = $uri->getParam('text');
+                $date = trim($uri->getParam('contactDate'));
+                $text = trim($uri->getParam('text'));
 
-                $note = $this->create($contactId, $date, $text);
+                $note = $this->create($uri->getFirstUrlParam(), $date, $text);
                 if (!$note) {
                     Output::error($this->error, $uri->getMethod());
                 }
@@ -58,21 +61,15 @@ class Notes implements iServices
                 break;
 
             case Output::METHOD_PATCH:
-                // TODO
-                Output::success([], $uri->getMethod());
-                // *****
-
                 if (empty($uri->getFirstUrlParam()) || !is_numeric($uri->getFirstUrlParam())) {
                     Output::error('Requisição inválida', $uri->getMethod());
                 }
 
-                $resident = trim($uri->getParam('resident'));
-                $publisher = trim($uri->getParam('publisher'));
-                $dayOfWeek = $uri->getParam('dayOfWeek', FILTER_VALIDATE_INT);
-                $period = $uri->getParam('period', FILTER_VALIDATE_INT);
+                $date = trim($uri->getParam('contactDate'));
+                $text = trim($uri->getParam('text'));
 
-                $user = $this->update($uri->getFirstUrlParam(), $resident, $publisher, $dayOfWeek, $period);
-                if (!$user) {
+                $note = $this->update($uri->getFirstUrlParam(), $date, $text);
+                if (!$note) {
                     Output::error($this->error, $uri->getMethod());
                 }
 
@@ -87,7 +84,7 @@ class Notes implements iServices
 
     private function get($contactId)
     {
-        $notes = Query::exec('SELECT * FROM notes WHERE contactId = :id', [
+        $notes = Query::exec('SELECT * FROM notes WHERE contactId = :id ORDER BY dateContact', [
             'id' => $contactId,
         ], Note::class);
 
@@ -170,47 +167,43 @@ class Notes implements iServices
         return $note;
     }
 
-    /**
-     * Utilizada também no serviço /myuser
-     */
-    public function update(int $id, $resident = null, $publisher = null, int $dayOfWeek = null, int $period = null)
+    public function update(int $id, $dateContact = null, $text = null)
     {
-        if (!empty($resident)) {
-            if (strlen($resident) < 3) {
-                $this->error = 'Informe um nome válido para o Morador. Precisa ter mais que 2 letras.';
+        if (!empty($id)) {
+            if (!is_numeric($id)) {
+                $this->error = 'Informe um ID de observação válido.';
                 return false;
             }
         }
 
-        if (!empty($publisher)) {
-            if (strlen($publisher) < 3) {
-                $this->error = 'Informe um nome válido para o Publicador. Precisa ter mais que 2 letras.';
+        if (!empty($dateContact)) {
+            if (!preg_match(REGEX_DATE, $dateContact)) {
+                $this->error = 'Informe uma data de contato válida. Deve estar no formato 2099-12-31 23:59';
+                return false;
+            }
+
+            try {
+                $dateContact = new \DateTime($dateContact);               
+            } catch (\Exception $e) {
+                $this->error = 'Informe uma data de contato válida. Deve estar no formato 2099-12-31 23:59. ' . $e->getMessage();
                 return false;
             }
         }
 
-        if (!empty($dayOfWeek)) {
-            if ($dayOfWeek < 1 || $dayOfWeek > 7) {
-                $this->error = 'Informe um dia da semana válido. Deve ser um número de 1 a 7, sendo 1 = Domingo.';
+        if (!empty($text)) {
+            if (strlen($text) < 5) {
+                $this->error = 'Informe uma observação válida. Deve ter pelo menos 5 letras.';
                 return false;
             }
         }
 
-        if (!empty($period)) {
-            if ($period < 1 || $period > 3) {
-                $this->error = 'Informe um período válido. Deve ser um número de 1 a 3, sendo 1 = Manhã, 2 = Tarde e 3 = Noite.';
-                return false;
-            }
-        }
-
-
-        /** @var Contact $user Verifica se o usuario existe */
-        $contact = Query::exec("SELECT * FROM contacts WHERE id = :id", [
+        /** @var Note $note Verifica se a nota existe */
+        $note = Query::exec("SELECT * FROM notes WHERE id = :id", [
             'id' => $id,
-        ], Contact::class)[0] ?? null;
+        ], Note::class)[0] ?? null;
 
-        if (!$contact) {
-            $this->error = "Não existe um contato com o número {$id}";
+        if (!$note) {
+            $this->error = "Não existe uma nota com o id {$id}";
             return false;
         }
 
@@ -219,34 +212,23 @@ class Notes implements iServices
         ];
 
         $textFields = '';
-        if (!empty($resident) && $resident != $contact->getResident()) {
-            $contact->setResident($resident);
-            $fields['resident'] = $contact->getResident();
-            $textFields .= (empty($textFields) ? '' : ', ') . 'resident = :resident';
+        if (!empty($dateContact) && $dateContact != $note->getDateContact()) {
+            $note->setDateContact($dateContact);
+            $fields['dateContact'] = $note->getDateContact()->format('Y-m-d H:i:s');
+            $textFields .= (empty($textFields) ? '' : ', ') . 'dateContact = :dateContact';
         }
-        if (!empty($publisher) && $publisher != $contact->getPublisher()) {
-            $contact->setPublisher($publisher);
-            $fields['publisher'] = $contact->getPublisher();
-            $textFields .= (empty($textFields) ? '' : ', ') . 'publisher = :publisher';
+        if (!empty($text) && $text != $note->getObs()) {
+            $note->setObs($text);
+            $fields['obs'] = $note->getObs();
+            $textFields .= (empty($textFields) ? '' : ', ') . 'obs = :obs';
         }
-        if (!empty($dayOfWeek) && $dayOfWeek != $contact->getDayOfWeek()) {
-            $contact->setDayOfWeek($dayOfWeek);
-            $fields['dayOfWeek'] = $contact->getDayOfWeek();
-            $textFields .= (empty($textFields) ? '' : ', ') . 'dayOfWeek = :dayOfWeek';
-        }
-        if (!empty($period) && $period != $contact->getPeriod()) {
-            $contact->setPeriod($period);
-            $fields['period'] = $contact->getPeriod();
-            $textFields .= (empty($textFields) ? '' : ', ') . 'period = :period';
-        }
-
         // Se não foram necessária alterações
         if (empty($textFields)) {
             return true;
         }
 
         $response = Query::exec(
-            "UPDATE contacts SET {$textFields} WHERE id = :id",
+            "UPDATE notes SET {$textFields} WHERE id = :id",
             $fields
         );
 
@@ -255,7 +237,7 @@ class Notes implements iServices
             return false;
         }
 
-        return $contact;
+        return $note;
     }
 
     /**
