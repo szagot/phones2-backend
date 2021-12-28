@@ -8,10 +8,11 @@ namespace App\Services;
 
 use App\Config\Output;
 use App\Models\Contact;
+use App\Models\Note;
 use Sz\Config\Uri;
 use Sz\Conn\Query;
 
-class Contacts implements iServices
+class Notes implements iServices
 {
     private $error = '';
 
@@ -21,22 +22,13 @@ class Contacts implements iServices
 
             case Output::METHOD_GET:
 
-                if (!empty($uri->getFirstUrlParam())) {
-                    if (is_numeric($uri->getFirstUrlParam())) {
-                        // GET Contact
+                if (!empty($uri->getFirstUrlParam()) && is_numeric($uri->getFirstUrlParam())) {
+                        // GET Notes {idContact}
                         Output::success($this->get($uri->getFirstUrlParam()), $uri->getMethod());
-                    } elseif ($uri->getFirstUrlParam() == 'call') {
-                        // GET Contact Call
-                        Output::success($this->getCall(), $uri->getMethod());
-                    }
-
-                    Output::error('Requisição inválida', $uri->getMethod());
                 }
-
-                // GET All Contacts
-                Output::success($this->getAll(), $uri->getMethod());
+                
+                Output::error('Requisição inválida', $uri->getMethod());
                 break;
-
 
             case Output::METHOD_DELETE:
 
@@ -52,6 +44,9 @@ class Contacts implements iServices
                 break;
 
             case Output::METHOD_POST:
+                // TODO
+                Output::success([], $uri->getMethod());
+                // *****
 
                 $ddd = $uri->getParam('ddd', FILTER_VALIDATE_INT);
                 $prefix = $uri->getParam('prefix', FILTER_VALIDATE_INT);
@@ -67,6 +62,9 @@ class Contacts implements iServices
                 break;
 
             case Output::METHOD_PATCH:
+                // TODO
+                Output::success([], $uri->getMethod());
+                // *****
 
                 if (empty($uri->getFirstUrlParam()) || !is_numeric($uri->getFirstUrlParam())) {
                     Output::error('Requisição inválida', $uri->getMethod());
@@ -91,56 +89,28 @@ class Contacts implements iServices
         }
     }
 
-    /**
-     * Retorna todos os contatos
-     */
-    private function getAll()
+    private function get($idContact)
     {
-        $contacts = Query::exec(
-            'SELECT id, ddd, prefix, sufix, updatedAt, resident FROM contacts ORDER BY id',
-            [],
-            Contact::class
-        );
+        $notes = Query::exec('SELECT * FROM notes WHERE contactId = :id', [
+            'id' => $idContact,
+        ], Note::class);
 
-        return empty($contacts) ? [] : array_map(array($this, 'amendSimpleContact'), $contacts);
-    }
-
-    /**
-     * Retorna apenas contatos passíveis de ligação
-     */
-    private function getCall()
-    {
-        $contacts = Query::exec(
-            'SELECT id, ddd, prefix, sufix, updatedAt, resident FROM contacts WHERE updatedAt < :oldContact ORDER BY id',
-            ['oldContact' => date('Y-m-d H:i:s', strtotime(OLD_CONTACT))],
-            Contact::class
-        );
-
-        return empty($contacts) ? [] : array_map(array($this, 'amendSimpleContact'), $contacts);
-    }
-
-    private function get($id)
-    {
-        $contact = Query::exec('SELECT * FROM contacts WHERE id = :id', [
-            'id' => $id,
-        ], Contact::class)[0] ?? null;
-
-        return empty($contact) ? [] : $this->amendContact($contact);
+        return empty($notes) ? [] : array_map(array($this, 'amendNotes'), $notes);
     }
 
 
     private function delete($id)
     {
-        $contact = Query::exec('SELECT * FROM contacts WHERE id = :id', [
+        $note = Query::exec('SELECT * FROM notes WHERE id = :id', [
             'id' => $id,
-        ], Contact::class)[0] ?? null;
+        ], Note::class)[0] ?? null;
 
-        if (!$contact) {
-            $this->error = 'Não existe contato com o ID ' . $id;
+        if (!$note) {
+            $this->error = 'Não existe uma observação com o ID ' . $id;
             return false;
         }
 
-        $return = Query::exec('DELETE FROM contacts WHERE id = :id', [
+        $return = Query::exec('DELETE FROM notes WHERE id = :id', [
             'id' => $id,
         ]);
 
@@ -215,7 +185,6 @@ class Contacts implements iServices
             }
 
             $contacts[] = $contact;
-            
         } while ($sufixEnd > $index++);
 
         return $contacts;
@@ -312,44 +281,16 @@ class Contacts implements iServices
     /**
      * Faz a conversão de contato pro formato de devolução
      *
-     * @param Contact $contact
+     * @param Note $note
      * @return array
      */
-    private function amendContact(Contact $contact)
+    private function amendNotes(Note $note)
     {
         return [
-            'id' => (int) $contact->getId(),
-            'ddd' => (int) $contact->getDDD(),
-            'prefix' => (int) $contact->getPrefix(),
-            'sufix' => (int) $contact->getSufix(),
-            'formatted' => "({$contact->getDDD()}) {$contact->getPrefix()}-{$contact->getSufix()}",
-            'international' => INT_PREFIX . $contact->getId(),
-            'resident' => $contact->getResident(),
-            'publisher' => $contact->getPublisher(),
-            'dayOfWeek' => (int) $contact->getDayOfWeek(),
-            'dayOfWeekText' => $contact->getDayOfWeek(true),
-            'period' => (int) $contact->getPeriod(),
-            'periodText' => $contact->getPeriod(true),
-            'updatedAt' => $contact->getUpdatedAt()->format('Y-m-d H:i:s'),
-            'brazilDate' => $contact->getUpdatedAt()->format('d/m/Y H:i'),
-        ];
-    }
-
-    /**
-     * Faz a conversão de contato pro formato de devolução simplificado
-     *
-     * @param Contact $contact
-     * @return array
-     */
-    private function amendSimpleContact(Contact $contact)
-    {
-        return [
-            'phone' => (int) $contact->getId(),
-            'formatted' => "({$contact->getDDD()}) {$contact->getPrefix()}-{$contact->getSufix()}",
-            'international' => INT_PREFIX . $contact->getId(),
-            'updatedAt' => $contact->getUpdatedAt()->format('Y-m-d H:i:s'),
-            'brazilDate' => $contact->getUpdatedAt()->format('d/m/y H:i'),
-            'hasRevisit' => !empty($contact->getResident()),
+            'id' => (int) $note->getId(),
+            'dateContact' => $note->getDateContact()->format('Y-m-d H:i:s'),
+            'brazilDate' => $note->getDateContact()->format('d/m/Y H:i'),
+            'text' => $note->getObs(),
         ];
     }
 }

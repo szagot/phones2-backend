@@ -301,7 +301,7 @@ Obs: `dayOfWeek` refere-se ao dia da semana marcado para retorno, e `period` ao 
 
 Apaga os dados do contato informado.
 
-Se o memo tiver notas de revisitas, estas também serão apagadas.
+Se o mesmo tiver notas de revisitas, estas também serão apagadas.
 
 ---
 
@@ -347,3 +347,32 @@ Campo | Tipo | Descrição
 `period` | `int` | Perídodo. `1` = Manhã, `2` = Tarde e `3` = Noite
 
 Tudo estando correto, é retornado um `204 No Content`
+
+---
+
+`GET /phones/notes/{idContact}`
+
+Retorna as notas de um contato.
+
+O {idContact} é o número do telefone com ddd (apenas núemeros). Exemplo: `{uri}/phones/notes/11988889999`.
+
+Em caso de sucesso o retorno será:
+
+```JSON
+[
+    {
+        "id": 642,
+        "dateContact": "2021-10-03 10:39:18",
+        "brazilDate": "03/10/2021 10:39",
+        "text": "Morador não atendeu"
+    }
+]
+```
+
+---
+
+`DELETE /phones/notes/{id}`
+
+Apaga uma nota específica. Neste caso o {id} é o da observação.
+
+---
