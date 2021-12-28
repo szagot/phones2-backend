@@ -23,10 +23,10 @@ class Notes implements iServices
             case Output::METHOD_GET:
 
                 if (!empty($uri->getFirstUrlParam()) && is_numeric($uri->getFirstUrlParam())) {
-                        // GET Notes {idContact}
-                        Output::success($this->get($uri->getFirstUrlParam()), $uri->getMethod());
+                    // GET Notes {idContact}
+                    Output::success($this->get($uri->getFirstUrlParam()), $uri->getMethod());
                 }
-                
+
                 Output::error('Requisição inválida', $uri->getMethod());
                 break;
 
@@ -44,21 +44,17 @@ class Notes implements iServices
                 break;
 
             case Output::METHOD_POST:
-                // TODO
-                Output::success([], $uri->getMethod());
-                // *****
 
-                $ddd = $uri->getParam('ddd', FILTER_VALIDATE_INT);
-                $prefix = $uri->getParam('prefix', FILTER_VALIDATE_INT);
-                $sufixStart = $uri->getParam('sufixStart', FILTER_VALIDATE_INT);
-                $sufixEnd = $uri->getParam('sufixEnd', FILTER_VALIDATE_INT);
+                $contactId = $uri->getParam('contactId', FILTER_VALIDATE_INT);
+                $date = $uri->getParam('contactDate');
+                $text = $uri->getParam('text');
 
-                $contacts = $this->create($ddd, $prefix, $sufixStart, $sufixEnd);
-                if (!$contacts) {
+                $note = $this->create($contactId, $date, $text);
+                if (!$note) {
                     Output::error($this->error, $uri->getMethod());
                 }
 
-                Output::success(array_map(array($this, 'amendSimpleContact'), $contacts), $uri->getMethod());
+                Output::success($this->amendNotes($note, true), $uri->getMethod());
                 break;
 
             case Output::METHOD_PATCH:
@@ -89,10 +85,10 @@ class Notes implements iServices
         }
     }
 
-    private function get($idContact)
+    private function get($contactId)
     {
         $notes = Query::exec('SELECT * FROM notes WHERE contactId = :id', [
-            'id' => $idContact,
+            'id' => $contactId,
         ], Note::class);
 
         return empty($notes) ? [] : array_map(array($this, 'amendNotes'), $notes);
@@ -122,72 +118,56 @@ class Notes implements iServices
         return true;
     }
 
-    private function create(int $ddd, int $prefix, int $sufixStart, int $sufixEnd = null)
+    private function create(int $contactId, $contactDate, $text)
     {
-        if (strlen($ddd) != 2) {
-            $this->error = 'Informe um DDD válido';
+        if (strlen($contactId) < 10 || strlen($contactId) > 11) {
+            $this->error = 'Informe um telefone de contato válido. Deve conter 10 ou 11 dígitos, incluindo o DDD.';
             return false;
         }
 
-        if (strlen($prefix) < 4 || strlen($prefix) > 5) {
-            $this->error = 'Informe um prefixo válido';
+        if (!preg_match(REGEX_DATE, $contactDate)) {
+            $this->error = 'Informe uma data de contato válida. Deve estar no formato 2099-12-31 23:59';
             return false;
         }
 
-        if (strlen($sufixStart) != 4) {
-            $this->error = 'Informe um sufixo válido';
+        if (strlen($text) < 5) {
+            $this->error = 'Informe uma observação válida. Deve ter pelo menos 5 letras.';
             return false;
         }
 
-        if (empty($sufixEnd)) {
-            $sufixEnd = $sufixStart;
-        } elseif (strlen($sufixEnd) != 4 || $sufixEnd < $sufixStart) {
-            $this->error = 'Informe um sufixo de faixa válido. Precisa ser maior ou igual ao sufixo de início da faixa.';
+        // Verificando se o contato existe
+        $contact = Query::exec('SELECT * FROM contacts WHERE id = :id', [
+            'id' => $contactId,
+        ], Contact::class)[0] ?? null;
+
+        if (!$contact) {
+            $this->error = 'O telefone de contato informado não existe. Tel: ' . $contactId;
             return false;
         }
 
-        $contacts = [];
-        $index = $sufixStart;
+        $note = new Note();
+        $note
+            ->setContactId($contactId)
+            ->setDateContact(new \DateTime($contactDate))
+            ->setObs($text);
 
-        do {
-            $id = $ddd . $prefix . $index;
+        $response = Query::exec(
+            'INSERT INTO notes (contactId, dateContact, obs) VALUES (:contactId, :dateContact, :obs)',
+            [
+                'contactId'  => $note->getContactId(),
+                'dateContact' => $note->getDateContact()->format('Y-m-d H:i:s'),
+                'obs'  => $note->getObs(),
+            ]
+        );
 
-            // Verifica se o contato ja existe
-            $contact = Query::exec('SELECT * FROM contacts WHERE id = :id', [
-                'id' => $id,
-            ], Contact::class)[0] ?? null;
+        if (!$response) {
+            $this->error = Query::getLog(true)['errorMsg'];
+            return false;
+        }
 
-            if ($contact) {
-                $this->error = 'O contato já existe. Tel: ' . $id;
-                continue;
-            }
+        $note->setId(Query::getLog(true)['lastId']);
 
-            $contact = new Contact();
-            $contact
-                ->setDDD($ddd)
-                ->setPrefix($prefix)
-                ->setSufix($index)
-                ->generateId();
-
-            $response = Query::exec(
-                'INSERT INTO contacts (id, ddd, prefix, sufix) VALUES (:id, :ddd, :prefix, :sufix)',
-                [
-                    'id'  => $contact->getId(),
-                    'ddd' => $contact->getDDD(),
-                    'prefix'  => $contact->getPrefix(),
-                    'sufix' => $contact->getSufix(),
-                ]
-            );
-
-            if (!$response) {
-                $this->error = Query::getLog(true)['errorMsg'];
-                return false;
-            }
-
-            $contacts[] = $contact;
-        } while ($sufixEnd > $index++);
-
-        return $contacts;
+        return $note;
     }
 
     /**
@@ -284,13 +264,19 @@ class Notes implements iServices
      * @param Note $note
      * @return array
      */
-    private function amendNotes(Note $note)
+    private function amendNotes(Note $note, bool $withContact = false)
     {
-        return [
+        $return = [
             'id' => (int) $note->getId(),
             'dateContact' => $note->getDateContact()->format('Y-m-d H:i:s'),
             'brazilDate' => $note->getDateContact()->format('d/m/Y H:i'),
             'text' => $note->getObs(),
         ];
+
+        if($withContact){
+            $return['contactId'] = $note->getContactId();
+        }
+
+        return $return;
     }
 }

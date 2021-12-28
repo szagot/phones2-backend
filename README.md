@@ -1,5 +1,7 @@
 # App para controle de contatos de campo / revisitas
 
+Projeto clonado de [new-apps](https://github.com/szagot/new-apps)
+
 ---
 
 ## Mensagens de erro
@@ -350,11 +352,11 @@ Tudo estando correto, é retornado um `204 No Content`
 
 ---
 
-`GET /phones/notes/{idContact}`
+`GET /phones/notes/{contactId}`
 
 Retorna as notas de um contato.
 
-O {idContact} é o número do telefone com ddd (apenas núemeros). Exemplo: `{uri}/phones/notes/11988889999`.
+O {contactId} é o número do telefone com ddd (apenas núemeros). Exemplo: `{uri}/phones/notes/11988889999`.
 
 Em caso de sucesso o retorno será:
 
@@ -373,6 +375,30 @@ Em caso de sucesso o retorno será:
 
 `DELETE /phones/notes/{id}`
 
-Apaga uma nota específica. Neste caso o {id} é o da observação.
+Apaga uma nota específica. Neste caso o {id} é o da nota em questão.
+
+---
+
+`POST /phones/notes`
+
+Insere uma observação para o contato
+
+Campo | Tipo | Descrição
+------- | ------- | -------
+`contactId` | `int` | Número de telefone com ddd do contato
+`contactDate` | `string` | Data do contato (2099-12-31 23:59)
+`text` | `string` | Texto da observação
+
+Se tudo ocorrer bem, será retornada a observação inserida:
+
+```JSON
+{
+    "id": 642,
+    "dateContact": "2021-10-03 10:39:18",
+    "brazilDate": "03/10/2021 10:39",
+    "text": "Morador não atendeu",
+    "contactId": "11988889999"
+}
+```
 
 ---

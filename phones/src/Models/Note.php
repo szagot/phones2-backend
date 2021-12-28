@@ -17,6 +17,13 @@ class Note {
         return $this->id;
     }
 
+    public function setId(int $id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
     public function getContactId()
     {
         return $this->contactId;
