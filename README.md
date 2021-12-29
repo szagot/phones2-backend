@@ -283,8 +283,7 @@ Em caso de sucesso, o retorno será o seguinte:
         "resident": "Nome do Morador",
         "publisher": "Nome do Pulicador",
         "updatedAt": "2021-07-08 14:30:41",
-        "brazilDate": "08/07/21 14:30",
-        "hasRevisit": true
+        "brazilDate": "08/07/21 14:30"
     }
 ]
 ```
