@@ -362,6 +362,7 @@ class Contacts implements iServices
             'international' => INT_PREFIX . $contact->getId(),
             'updatedAt' => $contact->getUpdatedAt()->format('Y-m-d H:i:s'),
             'brazilDate' => $contact->getUpdatedAt()->format('d/m/y H:i'),
+            'allowCall' => $contact->getUpdatedAt()->format('Y-m-d H:i:s') < date('Y-m-d H:i:s', strtotime(OLD_CONTACT)),
             'hasRevisit' => !empty($contact->getResident()),
         ];
     }

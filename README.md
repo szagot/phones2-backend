@@ -240,10 +240,13 @@ Em caso de sucesso, o retorno será o seguinte:
         "international": "+5511988889999",
         "updatedAt": "2021-12-08 14:30:41",
         "brazilDate": "08/12/21 14:30",
+        "allowCall": true,
         "hasRevisit": true
     }
 ]
 ```
+
+***Obs:** O campo `allowCall` indica qualdo é permitido fazer ligação para um contato, e `hasRevisit` indica quando o contato possui um nome de Morador*
 
 ---
 
@@ -261,6 +264,7 @@ Em caso de sucesso, o retorno será o seguinte:
         "international": "+5511988889999",
         "updatedAt": "2021-07-08 14:30:41",
         "brazilDate": "08/07/21 14:30",
+        "allowCall": true,
         "hasRevisit": true
     }
 ]
