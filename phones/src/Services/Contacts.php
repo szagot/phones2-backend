@@ -6,6 +6,8 @@
 
 namespace App\Services;
 
+use App\Auth\JWT;
+use App\Config\InCall;
 use App\Config\Output;
 use App\Models\Contact;
 use Sz\Config\Uri;
@@ -22,15 +24,32 @@ class Contacts implements iServices
             case Output::METHOD_GET:
 
                 if (!empty($uri->getFirstUrlParam())) {
-                    if (is_numeric($uri->getFirstUrlParam())) {
+                    $inCall = new InCall();
+                    $contactId = $uri->getFirstUrlParam();
+                    $auth = $uri->getHeader('Authorization');
+                    $userMail = JWT::getUid($auth);
+
+                    if (is_numeric($contactId)) {
                         // GET Contact
-                        Output::success($this->get($uri->getFirstUrlParam()), $uri->getMethod());
-                    } elseif ($uri->getFirstUrlParam() == 'call') {
+
+                        // Verificando se o número está liberado
+                        if($userInCall = $inCall->inCall($userMail, (int) $contactId)){
+                            Output::error("O número $contactId já está em uso pelo usuário $userInCall", $uri->getMethod());
+                        }
+                        $inCall->addCall($userMail, (int) $contactId);
+
+                        Output::success($this->get($contactId), $uri->getMethod());
+                    } elseif ($contactId == 'call') {
                         // GET Contact Call
                         Output::success($this->getCall(), $uri->getMethod());
-                    } elseif ($uri->getFirstUrlParam() == 'revisits') {
+                    } elseif ($contactId == 'revisits') {
                         // GET Contact Revisits
                         Output::success($this->getRevisits(), $uri->getMethod());
+                    } elseif ($contactId == 'free' && !empty($uri->getSecondUrlParam())) {
+                        // GET Contact Free - Libera um contato pra uso
+                        Output::success([
+                            'free' => $inCall->freeNumber($userMail, (int) $uri->getSecondUrlParam())
+                        ], $uri->getMethod());
                     }
 
                     Output::error('Requisição inválida', $uri->getMethod());

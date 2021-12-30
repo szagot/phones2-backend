@@ -321,7 +321,33 @@ Em caso de sucesso o retorno será:
 }
 ```
 
-Obs: `dayOfWeek` refere-se ao dia da semana marcado para retorno, e `period` ao período do dia para esse retorno (manhã, tarde ou noite).
+***Obs:** `dayOfWeek` refere-se ao dia da semana marcado para retorno, e `period` ao período do dia para esse retorno (manhã, tarde ou noite).*
+
+Ao pegar os dados de um usuário, ele fica bloqueado. De forma que apenas o usuário atual consegue pegar os dados, outro usuário não consegue, sendo que o retorno será:
+
+```JSON
+{
+    "message": "O número 11988889999 já está em uso pelo usuário email@email.com",
+    "status": 404,
+    "timestamp": 1640888204
+}
+```
+
+Para liberar o contato, utilize o serviço `/phones/contacts/free/{id}`, explicado a seguir.
+
+---
+
+`GET /phones/contacts/free/{id}`
+
+Libera o número para uso de outro usuário.
+
+O campo retornado é `free`, que será `true` caso a liberação tenha sido bem sucedida.
+
+```JSON
+{
+    "free": true
+}
+```
 
 ---
 
