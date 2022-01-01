@@ -249,7 +249,7 @@ class Notes implements iServices
     {
         $return = [
             'id' => (int) $note->getId(),
-            'dateContact' => $note->getDateContact()->format('Y-m-d H:i:s'),
+            'dateContact' => $note->getDateContact()->format('Y-m-d\TH:i'),
             'brazilDate' => $note->getDateContact()->format('d/m/Y H:i'),
             'text' => $note->getObs(),
         ];
