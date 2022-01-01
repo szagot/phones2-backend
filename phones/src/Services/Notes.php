@@ -83,7 +83,7 @@ class Notes implements iServices
 
     private function get($contactId)
     {
-        $notes = Query::exec('SELECT * FROM notes WHERE contactId = :id ORDER BY dateContact', [
+        $notes = Query::exec('SELECT * FROM notes WHERE contactId = :id ORDER BY dateContact DESC', [
             'id' => $contactId,
         ], Note::class);
 
