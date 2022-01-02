@@ -238,7 +238,7 @@ Em caso de sucesso, o retorno será o seguinte:
         "phone": 11988889999,
         "formatted": "(11) 98888-9999",
         "international": "+5511988889999",
-        "updatedAt": "2021-12-08 14:30:41",
+        "updatedAt": "2021-12-08T14:30",
         "brazilDate": "08/12/21 14:30",
         "allowCall": true,
         "hasRevisit": true
@@ -262,7 +262,7 @@ Em caso de sucesso, o retorno será o seguinte:
         "phone": 11988889999,
         "formatted": "(11) 98888-9999",
         "international": "+5511988889999",
-        "updatedAt": "2021-07-08 14:30:41",
+        "updatedAt": "2021-07-08T14:30",
         "brazilDate": "08/07/21 14:30",
         "allowCall": true,
         "hasRevisit": true
@@ -286,7 +286,7 @@ Em caso de sucesso, o retorno será o seguinte:
         "international": "+5511988889999",
         "resident": "Nome do Morador",
         "publisher": "Nome do Pulicador",
-        "updatedAt": "2021-07-08 14:30:41",
+        "updatedAt": "2021-07-08T14:30",
         "brazilDate": "08/07/21 14:30"
     }
 ]
@@ -316,7 +316,7 @@ Em caso de sucesso o retorno será:
     "dayOfWeekText": "Domingo",
     "period": 1,
     "periodText": "Manhã",
-    "updatedAt": "2021-12-27 17:50:56",
+    "updatedAt": "2021-12-27T17:50",
     "brazilDate": "27/12/2021 17:50"
 }
 ```
@@ -380,7 +380,7 @@ Se tudo ocorrer bem, será retornada uma lista dos números inseridos, como segu
         "phone": 11988889999,
         "formatted": "(11) 98888-9999",
         "international": "+5511988889999",
-        "updatedAt": "2021-12-27 19:38:40",
+        "updatedAt": "2021-12-27T19:38",
         "brazilDate": "27/12/21 19:38",
         "hasRevisit": false
     }
@@ -416,7 +416,7 @@ Em caso de sucesso o retorno será:
 [
     {
         "id": 642,
-        "dateContact": "2021-10-03 10:39:18",
+        "dateContact": "2021-10-03T10:39",
         "brazilDate": "03/10/2021 10:39",
         "text": "Morador não atendeu"
     }
@@ -445,7 +445,7 @@ Se tudo ocorrer bem, será retornada a observação inserida:
 ```JSON
 {
     "id": 642,
-    "dateContact": "2021-10-03 10:39:18",
+    "dateContact": "2021-10-03T10:39",
     "brazilDate": "03/10/2021 10:39",
     "text": "Morador não atendeu",
     "contactId": "11988889999"

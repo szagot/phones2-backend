@@ -40,7 +40,7 @@ define('CSV_REVISITS', 'revisits.csv');
 // Padrões
 define('REGEX_PASS', '/^[^\s\t]{6,}$/');
 define('REGEX_MAIL', '/^[^@\s]+@[^@\s.]+\.[^@\s]+$/i');
-define('REGEX_DATE', '/^[0-9]{4}[\/-][0-9]{2}[\/-][0-9]{2}(\s+[0-9]{2}:[0-9]{2})?$/');
+define('REGEX_DATE', '/^[0-9]{4}[\/-][0-9]{2}[\/-][0-9]{2}((\s|T)+[0-9]{2}:[0-9]{2})?$/');
 
 date_default_timezone_set('America/Sao_Paulo');
 ini_set('display_errors', $config->isDebug() ? 'On' : 'Off');
