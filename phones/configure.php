@@ -1,7 +1,7 @@
 <?php
 return [
     // Ativar mode de Debug
-    'debug' => true,
+    'debug' => false,
 
     // Raiz do sistema
     'root' => 'phones/',
@@ -10,9 +10,9 @@ return [
     'tokenExpires' => '+6 hours',
 
     // Dados do BD
-    'db_name' => 'phones',
+    'db_name' => 'id17127412_phones',
     'db_host' => 'localhost',
-    'db_user' => 'phones',
+    'db_user' => 'id17127412_uphones',
     'db_pass' => 'Ph0n3s!20222',
 
     // Dados para phones
