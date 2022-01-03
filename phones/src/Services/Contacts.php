@@ -138,7 +138,7 @@ class Contacts implements iServices
     private function getCall()
     {
         $contacts = Query::exec(
-            'SELECT id, ddd, prefix, sufix, updatedAt, resident FROM contacts WHERE updatedAt < :oldContact ORDER BY id',
+            'SELECT id, ddd, prefix, sufix, updatedAt, resident FROM contacts WHERE updatedAt <= :oldContact ORDER BY id',
             ['oldContact' => date('Y-m-d H:i:s', strtotime(OLD_CONTACT))],
             Contact::class
         );
@@ -256,12 +256,13 @@ class Contacts implements iServices
                 ->generateId();
 
             $response = Query::exec(
-                'INSERT INTO contacts (id, ddd, prefix, sufix) VALUES (:id, :ddd, :prefix, :sufix)',
+                'INSERT INTO contacts (id, ddd, prefix, sufix, updatedAt) VALUES (:id, :ddd, :prefix, :sufix, :updatedAt)',
                 [
                     'id'  => $contact->getId(),
                     'ddd' => $contact->getDDD(),
                     'prefix'  => $contact->getPrefix(),
                     'sufix' => $contact->getSufix(),
+                    'updatedAt' => date('Y-m-d H:i:s', strtotime(OLD_CONTACT)),
                 ]
             );
 
@@ -400,7 +401,7 @@ class Contacts implements iServices
             'international' => INT_PREFIX . $contact->getId(),
             'updatedAt' => $contact->getUpdatedAt()->format('Y-m-d\TH:i'),
             'brazilDate' => $contact->getUpdatedAt()->format('d/m/y H:i'),
-            'allowCall' => $contact->getUpdatedAt()->format('Y-m-d H:i') < date('Y-m-d H:i', strtotime(OLD_CONTACT)),
+            'allowCall' => $contact->getUpdatedAt()->format('Y-m-d H:i') <= date('Y-m-d H:i', strtotime(OLD_CONTACT)),
             'hasRevisit' => !empty($contact->getResident()),
         ];
     }
