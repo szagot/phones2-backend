@@ -351,6 +351,20 @@ O campo retornado é `free`, que será `true` caso a liberação tenha sido bem 
 
 ---
 
+`GET /phones/contacts/update/{id}`
+
+Atualiza o contato para que não apareça em `contacts/call`.
+
+O campo retornado é `update`, que será `true` caso a atualização tenha sido bem sucedida.
+
+```JSON
+{
+    "update": true
+}
+```
+
+---
+
 `DELETE /phones/contacts/{id}`
 
 Apaga os dados do contato informado.

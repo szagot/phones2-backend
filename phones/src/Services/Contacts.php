@@ -33,7 +33,7 @@ class Contacts implements iServices
                         // GET Contact
 
                         // Verificando se o número está liberado
-                        if($userInCall = $inCall->inCall($userMail, (int) $contactId)){
+                        if ($userInCall = $inCall->inCall($userMail, (int) $contactId)) {
                             Output::error("O número $contactId já está em uso pelo usuário $userInCall", $uri->getMethod());
                         }
                         $inCall->addCall($userMail, (int) $contactId);
@@ -49,6 +49,11 @@ class Contacts implements iServices
                         // GET Contact Free - Libera um contato pra uso
                         Output::success([
                             'free' => $inCall->freeNumber($userMail, (int) $uri->getSecondUrlParam())
+                        ], $uri->getMethod());
+                    } elseif ($contactId == 'update' && !empty($uri->getSecondUrlParam())) {
+                        // GET Contact Update - Atualiza data de um contato
+                        Output::success([
+                            'update' => $this->updateTimestampContact((int) $uri->getSecondUrlParam())
                         ], $uri->getMethod());
                     }
 
@@ -164,6 +169,21 @@ class Contacts implements iServices
         return empty($contact) ? [] : $this->amendContact($contact);
     }
 
+    private function updateTimestampContact($contactId)
+    {
+        $return = Query::exec(
+            'UPDATE contacts SET updatedAt = NOW() WHERE id = :id',
+            ['id' => $contactId]
+        );
+
+        if (!$return) {
+            $this->error = Query::getLog(true)['errorMsg'];
+            return false;
+        }
+
+        return true;
+    }
+
 
     private function delete($id)
     {
@@ -251,7 +271,6 @@ class Contacts implements iServices
             }
 
             $contacts[] = $contact;
-            
         } while ($sufixEnd > $index++);
 
         return $contacts;
