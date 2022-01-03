@@ -10,10 +10,10 @@ return [
     'tokenExpires' => '+6 hours',
 
     // Dados do BD
-    'db_name' => '342570',
+    'db_name' => 'phones',
     'db_host' => 'localhost',
-    'db_user' => '342570',
-    'db_pass' => 'DSpider1981',
+    'db_user' => 'phones',
+    'db_pass' => 'Ph0n3s!20222',
 
     // Dados para phones
     'country_code' => '+55',
