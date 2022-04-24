@@ -152,7 +152,7 @@ class Contacts implements iServices
     private function getRevisits()
     {
         $contacts = Query::exec(
-            'SELECT id, ddd, prefix, sufix, updatedAt, resident, publisher FROM contacts WHERE COALESCE(resident, "") <> "" ORDER BY id',
+            'SELECT id, ddd, prefix, sufix, updatedAt, resident, publisher, dayOfWeek FROM contacts WHERE COALESCE(resident, "") <> "" ORDER BY id',
             [],
             Contact::class
         );
@@ -422,6 +422,7 @@ class Contacts implements iServices
             'publisher' => $contact->getPublisher(),
             'updatedAt' => $contact->getUpdatedAt()->format('Y-m-d\TH:i'),
             'brazilDate' => $contact->getUpdatedAt()->format('d/m/y H:i'),
+            'dayOfWeek' => $contact->getDayOfWeek(true),
         ];
     }
 }
