@@ -220,14 +220,14 @@ class Contacts implements iServices
             return false;
         }
 
-        if (strlen($sufixStart) != 4) {
+        if (is_null($sufixStart)) {
             $this->error = 'Informe um sufixo válido';
             return false;
         }
 
         if (empty($sufixEnd)) {
             $sufixEnd = $sufixStart;
-        } elseif (strlen($sufixEnd) != 4 || $sufixEnd < $sufixStart) {
+        } elseif ($sufixEnd < $sufixStart) {
             $this->error = 'Informe um sufixo de faixa válido. Precisa ser maior ou igual ao sufixo de início da faixa.';
             return false;
         }
@@ -236,18 +236,6 @@ class Contacts implements iServices
         $index = $sufixStart;
 
         do {
-            $id = $ddd . $prefix . $index;
-
-            // Verifica se o contato ja existe
-            $contact = Query::exec('SELECT * FROM contacts WHERE id = :id', [
-                'id' => $id,
-            ], Contact::class)[0] ?? null;
-
-            if ($contact) {
-                $this->error = 'O contato já existe. Tel: ' . $id;
-                continue;
-            }
-
             $contact = new Contact();
             $contact
                 ->setDDD($ddd)
@@ -255,13 +243,23 @@ class Contacts implements iServices
                 ->setSufix($index)
                 ->generateId();
 
+            // Verifica se o contato ja existe
+            $contactTemp = Query::exec('SELECT * FROM contacts WHERE id = :id', [
+                'id' => $contact->getId(),
+            ], Contact::class)[0] ?? null;
+
+            if ($contactTemp) {
+                $this->error = 'O contato já existe. Tel: ' . $contact->getId();
+                continue;
+            }
+
             $response = Query::exec(
                 'INSERT INTO contacts (id, ddd, prefix, sufix, updatedAt) VALUES (:id, :ddd, :prefix, :sufix, :updatedAt)',
                 [
                     'id'  => $contact->getId(),
                     'ddd' => $contact->getDDD(),
                     'prefix'  => $contact->getPrefix(),
-                    'sufix' => $contact->getSufix(),
+                    'sufix' => $contact->getSufix(false),
                     'updatedAt' => date('Y-m-d H:i:s', strtotime(OLD_CONTACT)),
                 ]
             );

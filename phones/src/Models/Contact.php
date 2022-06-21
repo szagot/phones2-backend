@@ -28,7 +28,7 @@ class Contact
 
     public function generateId()
     {
-        $this->id = $this->ddd . $this->prefix . $this->sufix;
+        $this->id = $this->ddd . $this->prefix . str_pad($this->sufix, 4, '0', STR_PAD_LEFT);
         $this->updatedAt = date('Y-m-d H:i:s');
 
         return $this;
@@ -58,9 +58,9 @@ class Contact
         return $this;
     }
 
-    public function getSufix()
+    public function getSufix($isFormated = true)
     {
-        return $this->sufix;
+        return $isFormated ? str_pad($this->sufix, 4, '0', STR_PAD_LEFT) : $this->sufix;
     }
 
     public function setSufix(int $sufix)
